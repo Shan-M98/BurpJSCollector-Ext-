@@ -1,0 +1,74 @@
+===============================================================================
+BURP JS COLLECTOR - QUICK START GUIDE
+===============================================================================
+
+INSTALLATION
+------------
+
+1. Download Jython Standalone JAR
+   → https://www.jython.org/download
+   → Get: jython-standalone-2.7.3.jar
+
+2. Configure Burp for Python
+   → Open Burp Suite
+   → Extender → Options
+   → Python Environment → Select file
+   → Choose jython-standalone-2.7.3.jar
+
+3. Load Extension
+   → Extender → Extensions → Add
+   → Extension Type: Python
+   → Extension file: Browse to BurpJSCollector.py
+   → Click Next
+
+4. Verify
+   → Look for "JS Collector" tab in Burp
+   → Check Extender → Output for success message
+
+
+USAGE
+-----
+
+1. Browse your target site with Burp proxy enabled
+
+2. Watch the "JS Collector" tab fill with URLs automatically
+
+3. Export when done:
+   → Click "Export to File"
+   → Save as js_files.txt
+
+4. Use with JSExtractor (optional):
+   cd JSExtractor
+   python js_recon.py ../js_files.txt
+
+
+FEATURES
+--------
+
+[Export to File]        - Save all URLs to .txt file
+[Copy to Clipboard]     - Copy all URLs
+[Clear]                 - Empty the list
+[ ] Filter out CDN      - Hide common CDN libraries (jQuery, etc.)
+
+
+EXAMPLE OUTPUT
+--------------
+
+https://example.com/static/app.js
+https://example.com/js/bundle.min.js
+https://api.example.com/client.js
+https://cdn.example.com/vendor.js
+
+
+PERFECT WORKFLOW
+----------------
+
+1. Burp + BurpJSCollector → Collect JS files
+2. Export to js_files.txt
+3. JSExtractor → Analyze for secrets, endpoints, paths
+4. Review FINDINGS.txt for vulnerabilities
+
+
+That's it! Simple and powerful.
+
+===============================================================================
