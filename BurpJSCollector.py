@@ -14,6 +14,7 @@ from javax.swing import (JPanel, JButton, JScrollPane, JTextArea,
                          SwingUtilities, BoxLayout, Box)
 from javax.swing.filechooser import FileNameExtensionFilter
 from java.io import File
+from java.net import URL
 import re
 from urlparse import urlparse, urljoin
 
@@ -124,6 +125,10 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
             request_info = self._helpers.analyzeRequest(messageInfo)
             url = request_info.getUrl()
 
+            # Skip out-of-scope URLs
+            if not self._callbacks.isInScope(url):
+                return
+
             # Get response
             response = messageInfo.getResponse()
             if response is None:
@@ -214,6 +219,14 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
         """Add a JavaScript URL to the collection"""
         # Remove fragments and trailing slashes
         url = url.split('#')[0]
+
+        # Skip out-of-scope URLs
+        try:
+            java_url = URL(url)
+            if not self._callbacks.isInScope(java_url):
+                return
+        except:
+            return  # Skip invalid URLs
 
         # Skip if CDN filter is enabled and this is a CDN URL
         if self.cdn_filter_checkbox.isSelected() and self._is_cdn_url(url):
