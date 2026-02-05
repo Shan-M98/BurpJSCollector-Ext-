@@ -1,0 +1,38 @@
+# Enhanced Web Reconnaissance Tool v5.1 Requirements
+# Install with: pip install -r requirements.txt
+
+# === CORE DEPENDENCIES (Required) ===
+
+# DNS operations
+dnspython>=2.3.0
+
+# WHOIS lookups
+python-whois>=0.8.0
+
+# HTTP requests
+requests>=2.28.0
+
+# Async HTTP requests
+aiohttp>=3.8.0
+
+# === OPTIONAL BUT RECOMMENDED ===
+
+# Terminal colors (graceful fallback if not installed)
+colorama>=0.4.6
+
+# === NOTES ===
+#
+# The tool uses these standard library modules (no install needed):
+# - socket, ssl, hashlib, re, json, sys, argparse, time, os
+# - asyncio, subprocess, concurrent.futures
+# - urllib.parse, datetime, collections, typing, pathlib, dataclasses
+#
+# External tools (optional, called via subprocess if available):
+# - amass: https://github.com/OWASP/Amass
+# - subfinder: https://github.com/projectdiscovery/subfinder
+#
+# API integrations use requests directly (no additional libraries needed):
+# - Shodan, Censys, VirusTotal, SecurityTrails, Hunter.io, GitHub
+#
+# === QUICK INSTALL ===
+# pip install requests dnspython python-whois aiohttp colorama
