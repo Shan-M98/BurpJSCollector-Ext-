@@ -1,334 +1,375 @@
-# BurpJSCollector
+# Enhanced Web Reconnaissance Tool v5.1
 
-<p align="center">
-  <b>Simple Burp Suite Extension for Collecting JavaScript File URLs</b>
-</p>
+Advanced web application reconnaissance tool for authorized security testing and bug bounty hunting.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-2.7%20%7C%203.x-blue.svg" alt="Python 2.7 | 3.x">
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
-  <img src="https://img.shields.io/badge/Burp-Suite-orange.svg" alt="Burp Suite">
-  <img src="https://img.shields.io/badge/Maintained-Yes-brightgreen.svg" alt="Maintained">
-</p>
+## Features
+
+### Core Reconnaissance Modules
+
+#### 1. **DNS Intelligence**
+- Forward and reverse DNS lookups
+- All DNS record types (A, AAAA, MX, NS, TXT, SOA, CNAME, CAA)
+- Nameservers and MX from apex domain
+- Zone transfer vulnerability testing
+- DNSSEC validation
+- SPF and DMARC record analysis
+- Wildcard DNS detection
+
+#### 2. **Subdomain Discovery** (13+ Sources)
+- Certificate transparency logs (crt.sh, CertSpotter)
+- Bruteforce common subdomains
+- SecurityTrails API
+- VirusTotal API
+- URLScan.io
+- RapidDNS
+- AlienVault OTX
+- HackerTarget
+- ThreatCrowd
+- DNSDumpster
+- External tools (Amass, Subfinder) if installed
+- Subdomain verification with status codes
+
+#### 3. **Infrastructure Mapping**
+- ASN lookup via DNS
+- Cloud provider detection (AWS, Azure, GCP, etc.)
+- CDN detection (Cloudflare, Akamai, Fastly, etc.)
+- Reverse DNS enumeration for IP ranges
+
+#### 4. **Port Scanning**
+- Common ports scanning (35+ ports)
+- Service detection
+- Banner grabbing
+
+#### 5. **Technology Detection**
+- CMS identification (WordPress, Joomla, Drupal, etc.)
+- Web framework detection (React, Angular, Vue, etc.)
+- JavaScript library identification
+- Server and backend fingerprinting
+
+#### 6. **Security Analysis**
+- Security header analysis (HSTS, CSP, X-Frame-Options, etc.)
+- TLS/SSL certificate examination
+- WAF detection (Cloudflare, AWS WAF, Akamai, etc.)
+
+#### 7. **OSINT Gathering**
+- Email address harvesting
+- Employee information discovery (Hunter.io)
+- Social media profile detection
+- GitHub code search
+- Google dork generation
+
+#### 8. **Web Content Analysis**
+- Endpoint discovery
+- Form discovery and analysis
+- robots.txt and sitemap.xml parsing
+- HTML comment extraction
+
+#### 9. **Content Discovery**
+- Common path fuzzing
+- Backup file detection
+- Admin panel discovery
+- Configuration file detection
+
+#### 10. **Parameter Discovery**
+- Common parameter testing
+- Reflection detection
+
+#### 11. **Third-Party Intelligence**
+- Shodan integration
+- Censys integration
+- VirusTotal reputation checks
+- SecurityTrails historical data
+- Hunter.io email discovery
+
+#### 12. **Historical Intelligence**
+- Wayback Machine snapshots
 
 ---
 
-## 📋 Overview
+## API Keys (Optional but Recommended)
 
-**BurpJSCollector** is a Burp Suite extension that solves a common frustration with JS Link Finder and similar tools - it gives you **complete, full URLs** to JavaScript files, not relative paths!
+The tool works without API keys using passive techniques. Adding API keys significantly improves results.
 
-### The Problem with JS Link Finder
+### Supported APIs
 
-```
-❌ Base: https://example.com
-     /static/app.js
-     /js/bundle.js
-```
+| Service | Environment Variable | Free Tier | Priority |
+|---------|---------------------|-----------|----------|
+| Shodan | `SHODAN_API_KEY` | 100 queries/month | HIGH |
+| SecurityTrails | `SECURITYTRAILS_API_KEY` | 50 queries/month | HIGH |
+| VirusTotal | `VT_API_KEY` | 500 queries/day | MEDIUM |
+| Hunter.io | `HUNTER_API_KEY` | 50 searches/month | MEDIUM |
+| GitHub | `GITHUB_TOKEN` | Unlimited (rate limited) | MEDIUM |
+| Censys | `CENSYS_API_SECRET` | 250 queries/month | LOW |
+| BinaryEdge | `BINARYEDGE_API_KEY` | 250 queries/month | LOW |
+| FullHunt | `FULLHUNT_API_KEY` | Free tier available | LOW |
 
-### The BurpJSCollector Solution
+### Setting Up API Keys
 
-```
-✅ https://example.com/static/app.js
-✅ https://example.com/js/bundle.js
-```
-
-**Clean. Complete. Ready to use.**
-
-Perfect companion to [JSExtractor](https://github.com/yourusername/JSExtractor)!
-
-## ✨ Features
-
-- ✅ **Automatic Collection** - Passively captures JS files as you browse
-- ✅ **Full URLs Only** - No relative paths, no fragments
-- ✅ **Auto-Deduplication** - No duplicates in your list
-- ✅ **Multiple Sources** - Captures from:
-  - Direct `.js` file requests
-  - `<script src="">` tags in HTML
-  - JavaScript imports/requires
-  - Response body references
-- ✅ **All JS File Types** - `.js`, `.jsx`, `.mjs`, `.ts`, `.min.js`, `.bundle.js`
-- ✅ **CDN Filtering** - Toggle to hide common CDN libraries
-- ✅ **Export to File** - One-click save as `.txt`
-- ✅ **Copy to Clipboard** - Quick copy all URLs
-- ✅ **Live Counter** - See collection progress in real-time
-- ✅ **Simple UI** - Clean, straightforward interface
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-1. **Burp Suite** (Community or Professional)
-2. **Jython Standalone JAR** - [Download here](https://www.jython.org/download)
-
-### Installation
-
-#### Step 1: Download Jython
-
-1. Visit https://www.jython.org/download
-2. Download **Jython Standalone JAR** (e.g., `jython-standalone-2.7.3.jar`)
-3. Save it somewhere accessible
-
-#### Step 2: Configure Burp
-
-1. Open **Burp Suite**
-2. Go to **Extender** → **Options**
-3. Under **Python Environment**, click **Select file...**
-4. Browse to your `jython-standalone-2.7.3.jar`
-5. Click **Open**
-
-#### Step 3: Load Extension
-
-1. In Burp, go to **Extender** → **Extensions** → **Add**
-2. Set **Extension Type** to **Python**
-3. Click **Select file...** and choose `BurpJSCollector.py`
-4. Click **Next**
-
-✅ You should see: `[+] JS File Collector loaded successfully`
-
-#### Step 4: Verify
-
-Look for a new tab in Burp called **"JS Collector"** - you're ready!
-
-## 📖 Usage
-
-### Basic Workflow
-
-```
-1. Browse target site (Burp proxy enabled)
-   ↓
-2. Extension automatically captures JS file URLs
-   ↓
-3. Click "Export to File" → save as js_files.txt
-   ↓
-4. Use with JSExtractor: python js_recon.py js_files.txt
-```
-
-### UI Overview
-
-```
-┌─ JS Collector ──────────────────────────────────────┐
-│                                                      │
-│  Collected: 47 unique JS files                      │
-│                                                      │
-│  ┌────────────────────────────────────────────┐    │
-│  │ https://example.com/static/app.js          │    │
-│  │ https://example.com/js/bundle.min.js       │    │
-│  │ https://cdn.example.com/main.js            │    │
-│  │ https://api.example.com/v1/client.js       │    │
-│  │ ...                                         │    │
-│  └────────────────────────────────────────────┘    │
-│                                                      │
-│  [Export to File] [Copy to Clipboard] [Clear]      │
-│  [ ] Filter out CDN libraries                       │
-│                                                      │
-└──────────────────────────────────────────────────────┘
-```
-
-### Features Explained
-
-**Export to File**
-- Saves all URLs to a `.txt` file
-- One URL per line
-- Default filename: `js_files.txt`
-- Perfect for JSExtractor input
-
-**Copy to Clipboard**
-- Instantly copies all URLs
-- Paste anywhere you need
-
-**Clear**
-- Empties the list
-- Start fresh for new target
-
-**Filter CDN Libraries**
-- Hides common CDN URLs (jQuery, React, etc.)
-- Focus on target-specific JS files
-
-## 🎯 Complete Workflow with JSExtractor
-
+#### Linux/Mac:
 ```bash
-# Step 1: Collect JS URLs in Burp
-#   - Browse target site
-#   - Extension auto-collects
-#   - Export to js_files.txt
+# Add to ~/.bashrc or ~/.zshrc
+export SHODAN_API_KEY="your_shodan_key_here"
+export SECURITYTRAILS_API_KEY="your_securitytrails_key_here"
+export VT_API_KEY="your_virustotal_key_here"
+export HUNTER_API_KEY="your_hunter_key_here"
+export GITHUB_TOKEN="your_github_token_here"
+export CENSYS_API_SECRET="your_censys_token_here"
 
-# Step 2: Analyze with JSExtractor
-cd JSExtractor
-python js_recon.py ../js_files.txt
-
-# Step 3: Review findings
-cat scans/js_files_*/results/FINDINGS.txt
-
-# Step 4: Test discovered endpoints
-cat scans/js_files_*/results/paths_api_routes.txt
+# Reload shell
+source ~/.bashrc
 ```
 
-## 📊 What Gets Collected
+#### Windows (PowerShell):
+```powershell
+$env:SHODAN_API_KEY="your_shodan_key_here"
+$env:SECURITYTRAILS_API_KEY="your_securitytrails_key_here"
+$env:VT_API_KEY="your_virustotal_key_here"
+$env:HUNTER_API_KEY="your_hunter_key_here"
+$env:GITHUB_TOKEN="your_github_token_here"
+```
 
-### File Types
-- `.js` - Standard JavaScript
-- `.jsx` - React JavaScript
-- `.mjs` - ES6 Modules
-- `.ts` - TypeScript
-- `.min.js` - Minified JavaScript
-- `.bundle.js` - Bundled JavaScript
-
-### Sources
-- Direct `.js` requests
-- `<script src="">` tags
-- `import ... from "..."`
-- `require("...")`
-- `<link href="...js">`
-- URL references in CSS
-
-### URL Formats
-- Absolute: `https://example.com/app.js` ✅
-- Protocol-relative: `//cdn.example.com/app.js` ✅ (converted)
-- Relative: `/static/app.js` ✅ (converted to absolute)
-- With params: `app.js?v=1.2.3` ✅
-
-## 🔍 Examples
-
-### Example 1: Bug Bounty Workflow
-
+#### Using .env file:
 ```bash
-# 1. Configure browser to use Burp proxy
-# 2. Browse target website normally
-# 3. Go to "JS Collector" tab in Burp
-# 4. See collected JS files (Counter shows: "Collected: 150 unique JS files")
-# 5. Click "Export to File" → save as target_js.txt
-# 6. Analyze: python js_recon.py target_js.txt
+# Create .env file
+cat > .env << EOF
+SHODAN_API_KEY=your_shodan_key_here
+SECURITYTRAILS_API_KEY=your_securitytrails_key_here
+VT_API_KEY=your_virustotal_key_here
+HUNTER_API_KEY=your_hunter_key_here
+GITHUB_TOKEN=your_github_token_here
+EOF
+
+# Load with:
+export $(cat .env | xargs)
 ```
-
-### Example 2: Multiple Targets
-
-```bash
-# Target A
-# Browse https://target-a.com
-# Export as target_a_js.txt
-# Click "Clear"
-
-# Target B
-# Browse https://target-b.com
-# Export as target_b_js.txt
-
-# Analyze separately
-python js_recon.py target_a_js.txt
-python js_recon.py target_b_js.txt
-```
-
-### Example 3: Clean List (No CDNs)
-
-```bash
-# 1. Browse target
-# 2. Enable "Filter out CDN libraries" checkbox
-# 3. Export → get only custom JS files
-# 4. Focus analysis on target code
-```
-
-## 🆚 Comparison to JS Link Finder
-
-| Feature | JS Link Finder | BurpJSCollector |
-|---------|----------------|------------------|
-| URL Format | Base + Paths | Complete URLs ✅ |
-| Ready to Use | No (manual join) | Yes ✅ |
-| Export | Complex | One-click ✅ |
-| CDN Filter | No | Yes ✅ |
-| Auto-dedupe | No | Yes ✅ |
-| Clipboard | No | Yes ✅ |
-| Live Counter | No | Yes ✅ |
-
-## 🛡️ Security Notice
-
-This tool is for **authorized security testing only**:
-- ✅ Bug bounty programs
-- ✅ Penetration testing with permission
-- ✅ Your own applications
-- ❌ Unauthorized scanning
-
-**You are responsible for ensuring proper authorization.**
-
-## 🐛 Troubleshooting
-
-### Extension Won't Load
-
-**Error:** "Failed to load extension"
-
-**Solution:**
-1. Verify Jython is configured: Extender → Options → Python Environment
-2. Ensure `jython-standalone-2.7.3.jar` is selected
-3. Restart Burp Suite
-
-### No URLs Collected
-
-**Issue:** Counter stays at 0
-
-**Solution:**
-1. Verify proxy is working (check Proxy → HTTP history)
-2. Ensure you're browsing sites with JavaScript
-3. Check Extender → Output for errors
-
-### Export Not Working
-
-**Solution:**
-1. Check write permissions on save location
-2. Try saving to different directory
-3. Check Extender → Errors tab
-
-## 📝 License
-
-This project is licensed under the MIT License with Attribution Requirement - see the [LICENSE](LICENSE) file for details.
-
-### 🏆 Attribution Requirements
-
-If you use this tool commercially or create improvements/modifications:
-
-✅ **Required:**
-- Provide clear attribution: "Based on BurpJSCollector by Shan Majeed"
-- Include a link to this repository
-- State if you've made modifications
-
-✅ **Example Attribution:**
-```
-This tool uses BurpJSCollector by Shan Majeed (https://github.com/yourusername/BurpJSCollector)
-Modified to add [your changes]
-```
-
-### 📣 Give Credit
-
-If you:
-- Use this in a commercial product
-- Create an improved version
-- Fork and modify it
-- Include it in another tool
-
-**Please credit the original author!** It supports open-source development and helps the community.
-
-## 🙏 Acknowledgments
-
-- Burp Suite community
-- Bug bounty hunters for feedback
-- Security research community
-
-## 🤝 Related Projects
-
-**[JSExtractor](https://github.com/yourusername/JSExtractor)** - Analyze collected JS files for secrets, endpoints, and vulnerabilities
-
-## ⭐ Show Your Support
-
-If you find BurpJSCollector useful:
-- Star the repository ⭐
-- Share with the community
-- Report bugs
-- Suggest improvements
-- Contribute code
 
 ---
 
-<p align="center">
-  Made with ❤️ for the security research community
-</p>
+## Installation
 
-<p align="center">
-  <b>Happy Hunting! 🎯</b>
-</p>
+### Requirements
+- Python 3.8+
+- pip
+
+### Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### Quick Install
+```bash
+pip install requests dnspython python-whois colorama aiohttp
+```
+
+---
+
+## Usage
+
+### Basic Usage
+```bash
+# Scan a domain
+python3 enhanced_recon_v5.py example.com
+
+# Scan with verbose output
+python3 enhanced_recon_v5.py example.com -v
+
+# Scan an IP address
+python3 enhanced_recon_v5.py 192.168.1.1
+```
+
+### Advanced Usage
+```bash
+# Use 20 threads with 1 second delay
+python3 enhanced_recon_v5.py example.com -t 20 -d 1
+
+# Use a proxy (e.g., Burp Suite)
+python3 enhanced_recon_v5.py example.com --proxy http://127.0.0.1:8080
+
+# Custom output directory
+python3 enhanced_recon_v5.py example.com -o /tmp/recon
+
+# Skip subdomain verification (faster)
+python3 enhanced_recon_v5.py example.com --skip-verify
+
+# Skip port scanning
+python3 enhanced_recon_v5.py example.com --no-ports
+
+# Skip content discovery
+python3 enhanced_recon_v5.py example.com --no-content
+
+# Full scan with all options
+python3 enhanced_recon_v5.py example.com -v -t 15 -d 0.3 --timeout 15 -o ./results
+```
+
+### Command Line Options
+```
+positional arguments:
+  target                Target domain or IP address
+
+optional arguments:
+  -h, --help            Show this help message and exit
+  -v, --verbose         Enable verbose output
+  -t THREADS, --threads THREADS
+                        Number of threads (default: 10)
+  -d DELAY, --delay DELAY
+                        Delay between requests in seconds (default: 0.5)
+  --timeout TIMEOUT     Request timeout in seconds (default: 10)
+  --proxy PROXY         Proxy URL (e.g., http://proxy:8080)
+  --user-agent USER_AGENT
+                        Custom User-Agent string
+  -o OUTPUT, --output OUTPUT
+                        Output directory (default: ./recon_output)
+  --rate-limit RATE_LIMIT
+                        Rate limit (requests per second, default: 10)
+  --skip-verify         Skip subdomain verification
+  --no-ports            Skip port scanning
+  --no-content          Skip content discovery
+```
+
+---
+
+## Output
+
+Single JSON file containing all collected intelligence:
+
+```
+./recon_output/recon_<target>_<scan_id>.json
+```
+
+The JSON includes:
+- Metadata (target, scan ID, duration)
+- DNS records (A, AAAA, MX, NS, TXT, SOA, CAA, SPF, DMARC)
+- WHOIS data
+- Infrastructure (ASN, cloud provider, CDN)
+- Subdomains (discovered + verified)
+- Open ports and services
+- Technologies detected
+- OSINT (emails, employees, social media)
+- Security headers and WAF detection
+- Content discovery results
+- Historical data (Wayback Machine)
+- Third-party API data (Shodan, VirusTotal, etc.)
+
+---
+
+## Use Cases
+
+### Bug Bounty Hunting
+```bash
+python3 enhanced_recon_v5.py target.com -v -t 15
+```
+
+### Penetration Testing (with Burp Suite)
+```bash
+python3 enhanced_recon_v5.py target.com --proxy http://127.0.0.1:8080 -v
+```
+
+### Security Assessments
+```bash
+python3 enhanced_recon_v5.py target.com -t 20 --rate-limit 5 -o ./client_reports
+```
+
+### CTF Competitions
+```bash
+python3 enhanced_recon_v5.py ctf.example.com -t 30 -d 0.1 --skip-verify
+```
+
+---
+
+## Legal Disclaimer
+
+**IMPORTANT:** This tool is for authorized security testing only.
+
+- Only use on systems you own or have explicit permission to test
+- Unauthorized scanning may be illegal in your jurisdiction
+- The author is not responsible for misuse of this tool
+- Always follow responsible disclosure practices
+- Respect rate limits and terms of service of third-party APIs
+
+---
+
+## Ethical Usage Guidelines
+
+1. **Get Permission**: Always obtain written authorization before testing
+2. **Respect Scope**: Stay within the agreed-upon scope of testing
+3. **Be Considerate**: Use appropriate delays to avoid DoS conditions
+4. **Report Findings**: Responsibly disclose any vulnerabilities found
+5. **Protect Data**: Handle discovered information with care
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+**"Module not found" errors:**
+```bash
+pip install -r requirements.txt
+```
+
+**SSL Certificate errors:**
+- The tool disables SSL verification by default for testing purposes
+
+**Rate limiting issues:**
+```bash
+python3 enhanced_recon_v5.py target.com -d 2
+```
+
+**API quota exceeded:**
+- Check your API key quotas
+- Consider upgrading to paid plans for heavy usage
+
+**DNS resolution failures:**
+- Check your internet connection
+- Some domains may have rate limiting
+
+---
+
+## Performance Tips
+
+1. **Adjust threads based on target**: More threads = faster, but may trigger rate limits
+2. **Use appropriate delays**: Faster scans may get blocked
+3. **Skip verification for large scopes**: Use `--skip-verify` for faster initial enumeration
+4. **Use proxy for testing**: Route through Burp/ZAP for analysis
+5. **API keys improve results**: More data sources = better intelligence
+
+---
+
+## Changelog
+
+### v5.1 (2025)
+- Added social media profile detection
+- Added reverse DNS enumeration for IP ranges
+- Improved Shodan integration (uses requests API directly)
+- Better error handling
+
+### v5.0 (2025)
+- Deep recon edition with maximum intelligence gathering
+- 13+ subdomain sources
+- Port scanning and service detection
+- Content and parameter discovery
+- Enhanced third-party API integration
+
+### v4.0 (2025)
+- Pure reconnaissance philosophy
+- Fixed DNS intelligence (apex domain handling)
+- No scoring/filtering - collect everything
+
+### v3.0 (2025)
+- Complete rewrite with improved architecture
+- Added async operations
+- Enhanced API integration
+
+---
+
+## Related Tools
+
+- Amass: https://github.com/OWASP/Amass
+- Subfinder: https://github.com/projectdiscovery/subfinder
+- Nuclei: https://github.com/projectdiscovery/nuclei
+- httpx: https://github.com/projectdiscovery/httpx
+
+---
+
+**Remember: With great power comes great responsibility. Use this tool ethically and legally.**
