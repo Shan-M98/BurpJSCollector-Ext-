@@ -1,14 +1,21 @@
+# Output directory
+recon_output/
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-*.pyc
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
 
 # IDE
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
 *~
@@ -16,16 +23,14 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Environment
+.env
+.env.local
+*.env
+
+# Logs
 *.log
 
-# User data
-*.txt
-exported_files/
-
-# Burp
-*.burp
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+# Claude Code
+.claude/
