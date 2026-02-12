@@ -6,7 +6,7 @@ Automatically collects full URLs to JavaScript files from proxy traffic
 """
 
 from burp import IBurpExtender, ITab, IHttpListener
-from java.awt import BorderLayout, FlowLayout, Dimension, Color
+from java.awt import BorderLayout, FlowLayout, Dimension
 from java.awt.datatransfer import StringSelection
 from java.awt import Toolkit
 from javax.swing import (JPanel, JButton, JScrollPane, JTextArea,
@@ -17,6 +17,13 @@ from java.io import File
 from java.net import URL
 import re
 from urlparse import urlparse, urljoin
+
+
+def normalize_url(url):
+    """Normalize a URL by stripping default ports (:443 for https, :80 for http)."""
+    url = re.sub(r'(https://[^/:]+):443(?=/|$)', r'\1', url)
+    url = re.sub(r'(http://[^/:]+):80(?=/|$)', r'\1', url)
+    return url
 
 class BurpExtender(IBurpExtender, ITab, IHttpListener):
 
@@ -40,9 +47,6 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
             'jsdelivr.net', 'unpkg.com', 'cdnjs.cloudflare.com',
             'bootstrapcdn.com', 'fontawesome.com', 'polyfill.io'
         ]
-
-        # JavaScript file extensions to capture
-        self.js_extensions = ['.js', '.jsx', '.mjs', '.ts', '.min.js', '.bundle.js']
 
         # Create UI
         self._create_ui()
@@ -129,7 +133,6 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
 
         try:
             # Get request info
-            request = messageInfo.getRequest()
             request_info = self._helpers.analyzeRequest(messageInfo)
             url = request_info.getUrl()
 
@@ -161,13 +164,15 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
 
     def _is_js_file(self, url):
         """Check if URL points to a JavaScript file"""
-        url_lower = url.lower()
-        for ext in self.js_extensions:
-            if ext in url_lower:
-                # Make sure it's actually the extension and not just part of the path
-                if url_lower.endswith(ext) or (ext + '?') in url_lower or (ext + '#') in url_lower:
-                    return True
-        return False
+        # Strip query string and fragment before checking extension
+        path = url.split('?')[0].split('#')[0].lower()
+        js_extensions = ('.js', '.jsx', '.mjs', '.ts')
+        if not path.endswith(js_extensions):
+            return False
+        # Guard against .ts matching non-JS paths like /timestamps
+        if path.endswith('.ts') and not re.search(r'/[^/]+\.ts$', path):
+            return False
+        return True
 
     def _extract_js_from_body(self, body, base_url):
         """Extract JavaScript file references from response body"""
@@ -180,13 +185,14 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
                 except:
                     body_str = body.decode('latin-1', errors='ignore')
 
-            # Regex patterns for JS file references
+            # Regex patterns for JS file references (.js, .jsx, .mjs, .ts)
+            js_ext = r'\.(?:js|jsx|mjs|ts)'
             patterns = [
-                r'<script[^>]+src=["\'](.*?\.js[^"\']*)["\']',  # <script src="...">
-                r'import\s+.*?from\s+["\']([^"\']+\.js[^"\']*)["\']',  # import from "..."
-                r'require\(["\']([^"\']+\.js[^"\']*)["\']',  # require("...")
-                r'href=["\'](.*?\.js[^"\']*)["\']',  # href="..."
-                r'url\(["\']?([^"\'()]+\.js[^"\'()]*)["\']?\)',  # url(...)
+                r'<script[^>]+src=["\']([^"\']*?' + js_ext + r'[^"\']*)["\']',  # <script src="...">
+                r'import\s+.*?from\s+["\']([^"\']+' + js_ext + r'[^"\']*)["\']',  # import from "..."
+                r'require\(["\']([^"\']+' + js_ext + r'[^"\']*)["\']',  # require("...")
+                r'href=["\']([^"\']*?' + js_ext + r'[^"\']*)["\']',  # href="..."
+                r'url\(["\']?([^"\'()]+' + js_ext + r'[^"\'()]*)["\']?\)',  # url(...)
             ]
 
             for pattern in patterns:
@@ -225,8 +231,9 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
 
     def _add_js_url(self, url):
         """Add a JavaScript URL to the collection"""
-        # Remove fragments and trailing slashes
+        # Remove fragments and normalize default ports
         url = url.split('#')[0]
+        url = normalize_url(url)
 
         # Skip out-of-scope URLs
         try:
@@ -283,7 +290,7 @@ class BurpExtender(IBurpExtender, ITab, IHttpListener):
         chooser.setSelectedFile(File("js_files.txt"))
 
         # Filter for .txt files
-        txt_filter = FileNameExtensionFilter("Text Files (*.txt)", ["txt"])
+        txt_filter = FileNameExtensionFilter("Text Files (*.txt)", "txt")
         chooser.setFileFilter(txt_filter)
 
         ret = chooser.showSaveDialog(self.panel)
